@@ -1,10 +1,11 @@
 import express from 'express';
 import sequelize from './database.js'; // Import the Sequelize instance
 import userRoutes from './Routes/userRoutes.js'; // Import the user routes
-
+import cors from 'cors'; // Import the CORS middleware
 
 const app = express();
 const port = 3000;
+app.use(cors());
 
 
 // Middleware to parse JSON & form data

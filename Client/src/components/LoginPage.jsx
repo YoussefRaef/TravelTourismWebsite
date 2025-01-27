@@ -1,5 +1,6 @@
 
 import React from 'react'
+import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {motion} from 'framer-motion';
@@ -16,7 +17,6 @@ import {
   import { IoLockClosed } from "react-icons/io5";
   import { faUser, faEye, faEyeSlash,faMailBulk,faPhone,faFlag,faCalendar,faSuitcase,faLock} from '@fortawesome/free-solid-svg-icons';
 
-
   function LoginPage() {
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -27,6 +27,10 @@ import {
   const [login, setLogin] = useState(true);
   const navigate = useNavigate();
   const [certificates, setCertificates] = React.useState(null);
+  const [formDatatLogin, setFormDataLogin] = React.useState({
+    username: '',
+    password: '',
+  });
   const [formData, setFormData] = React.useState({
     username: '',
     email: '',
@@ -88,6 +92,9 @@ const handleImageUpload = (e) => {
     const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const handleInputChangeLogin = (e) => {
+    setFormDataLogin({ ...formDatatLogin, [e.target.name]: e.target.value });
+  };
   const handleInputchangeTourist = (e) => {
     setFormDataTourist({ ...formDataTourist, [e.target.name]: e.target.value });
   };
@@ -131,20 +138,116 @@ const handleImageUpload = (e) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (role === 'Tourist' && validateForm() && validateFormTourist()) {
-      // Proceed with registration logic here
-      console.log('Form submitted successfully');
-    }
-    else if (role === 'Seller' && validateForm() && validateFormSeller()) {
-      // Proceed with registration logic here
-      console.log('Form submitted successfully');
-    }
-    else if (role === 'Advertiser' && validateForm() && validateFormAdvertiser()) {
-      // Proceed with registration logic here
-      console.log('Form submitted successfully');
-    }
-  };
 
+    // Validate the form based on the selected role
+    if (role === 'Tourist' && validateForm() && validateFormTourist()) {
+        const form = new FormData();
+
+        form.append('username', formData.username);
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+        form.append('role', role);
+
+        // Add tourist-specific fields
+        form.append('mobileNumber', formDataTourist.mobile);
+        form.append('nationality', formDataTourist.nationality);
+        form.append('job', formDataTourist.occupation);
+        form.append('dateOfBirth', formDataTourist.dob);
+
+        // Send form data via API
+        handleFormSubmission(form);
+    } 
+    else if (role === 'Seller' && validateForm() && validateFormSeller()) {
+        const form = new FormData();
+
+        form.append('username', formData.username);
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+        form.append('role', role);
+
+        // Add seller-specific fields
+        form.append('idFile', idFile);
+        form.append('certificatesFile', certificates);
+        form.append('imageFile', image);
+
+        // Send form data via API
+        handleFormSubmission(form);
+    } 
+    else if (role === 'Advertiser' && validateForm() && validateFormAdvertiser()) {
+        const form = new FormData();
+
+        form.append('username', formData.username);
+        form.append('email', formData.email);
+        form.append('password', formData.password);
+        form.append('role', role);
+
+        // Add advertiser-specific fields
+        form.append('idFile', idFile);
+        form.append('certificatesFile', certificates);
+        form.append('imageFile', image);
+
+        // Send form data via API
+        handleFormSubmission(form);
+    }
+};
+const handleFormSubmission = async (formData) => {
+  try {
+      // Make the POST request to the registration endpoint
+      const response = await axios.post('http://localhost:3000/user/registerUser', formData, {
+          headers: {
+              'Content-Type': 'multipart/form-data',
+          },
+      });
+
+      // Handle successful response
+      if (response.status === 201) {
+          console.log('User registered successfully!');
+          // Redirect user to the desired page, e.g., login page
+          if (role === 'Tourist') {
+            navigate('/tourist')
+          }
+        else if (role === 'Seller') {
+            navigate('/seller')
+          }
+        else if (role === 'Advertiser') {
+            navigate('/advertiser')
+          }
+      }
+  } catch (error) {
+      console.error('Error during registration:', error.response?.data || error.message);
+  }
+};
+const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    // Make the POST request to the login endpoint
+    const response = await axios.post('http://localhost:3000/user/login', {
+      username: formDatatLogin.username,
+      password: formDatatLogin.password,
+    });
+
+    // Handle successful response
+    if (response.status === 200) {
+      console.log('User logged in successfully!');
+      // Redirect user to the desired page, e.g., dashboard
+      if (response.data.role === 'Tourist') {
+        navigate('/tourist')
+      }
+    else if (response.data.role === 'Seller') {
+        navigate('/seller')
+      }
+    else if (response.data.role === 'Advertiser') {
+        navigate('/advertiser')
+      }
+      else if (response.data.role=== 'Admin') {
+        navigate('/admin')
+      }
+    }
+  } catch (error) {
+    console.error('Error during login:', error.response?.data || error.message);
+  alert('Invalid Username or Password')
+  }
+}
 
   return (
     
@@ -173,13 +276,18 @@ const handleImageUpload = (e) => {
     duration: 1, // Animation duration
     ease: "easeInOut", // Easing function for smooth entry and exit
   }}
-  className='flex flex-col bg-white rounded-lg shadow-lg p-5'>
+  className='flex flex-col bg-white rounded-lg shadow-lg p-5'
+  onSubmit={handleLogin}
+  >
     <h1 className='text-center text-2xl font-bold text-blue-800 m-2'>Put Your Information Down Below</h1>
     <p className='mx-auto'><FontAwesomeIcon icon={faUser} className="icon text-md px-1" />Username</p>
-  <input
+  <input 
+              name='username'
               type='text'
               className='border border-gray-300 rounded-lg p-2 my-2 text-center w-1/2 mx-auto'
               placeholder='Enter your Username'
+              value={formDatatLogin.username}
+              onChange={handleInputChangeLogin}
             />
             <p  className='mx-auto'><FontAwesomeIcon icon={faLock} className="icon text-md px-1" />Password</p>
      <div className='mx-auto flex flex-row justify-center items-center gap-2'>
@@ -189,6 +297,8 @@ const handleImageUpload = (e) => {
   name='password'
   className='border border-gray-300 rounded-lg p-2 my-2 text-center ml-8'
   placeholder='Enter your Password'
+  value={formDatatLogin.password}
+  onChange={handleInputChangeLogin}
   />
    <button
 type="button"
@@ -197,7 +307,8 @@ className=" text-gray-500"
 > <FontAwesomeIcon className="icon text-md px-1" icon={showPassword ? faEyeSlash : faEye} /></button>
   </div>
   <button className=' border rounded-lg my-2 px-5 py-0.5 bg-blue-200 text-black mx-auto justify-center text-lg font-semibold hover:opacity-70 duration-300'
-  type='button'>Login</button>
+  onClick={handleLogin}
+  type='submit'>Login</button>
   <button  className='hover:underline my-2' type="button ">Forgot Passsword?</button>
   <button  className='hover:underline ' type="button ">Continue as Guest</button>
   </motion.form>)}  

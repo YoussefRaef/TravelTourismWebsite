@@ -116,4 +116,82 @@ router.post('/registerUser', upload.fields([
 }));
 
 
+// http://localhost:3000/user/login
+router.post('/login', async (req, res) => {
+    const { username, password } = req.body;
+
+    try {
+        console.log('Received login request for username:', username);
+
+        // Check if the user exists in the database
+        const user = await User.findOne({ where: { username } }); 
+        if (!user) {
+            console.log('User not found in the database');
+            return res.status(400).json({ msg: 'Invalid username' });
+        }
+
+        console.log('User found:', user); // Log the entire user object (except password)
+
+        // Check if the user is rejected (if status is rejected, they cannot login)
+        if (user.status === 'Rejected') {
+            console.log('User account is rejected');
+            return res.status(400).json({ msg: 'Your account has been rejected. You cannot log in.' });
+        }
+        if (user.status === 'Pending') {
+            console.log('User account is pending approval');
+            return res.status(400).json({ msg: 'Your account is currently under review. Please wait for approval before logging in.' });
+        }
+
+        // Debugging password comparison
+        console.log('Entered Password:', password);
+        console.log('Stored Hashed Password:', user.password);
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Password Match Result:', isMatch);
+
+        if (!isMatch) {
+            console.log('Password comparison failed');
+            return res.status(400).json({ msg: 'Invalid password' });
+        }
+
+        console.log('User authenticated successfully');
+
+        // If the user is authenticated, create a JWT token
+        const payload = {
+            user: {
+                id: user._id,
+                role: user.role,
+            },
+        };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '100h' },
+            (err, token) => {
+                if (err) {
+                    console.error('JWT Signing Error:', err);
+                    throw err;
+                }
+                console.log('JWT Token generated successfully');
+                res.json({
+                    token,
+                    role: user.role,
+                    userId: user._id
+                });
+            }
+        );
+
+    } catch (err) {
+        console.error('Server Error:', err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
+
+
+// http://localhost:3000/user/logout
+
 export default router;
