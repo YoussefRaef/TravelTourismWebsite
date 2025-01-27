@@ -1,5 +1,5 @@
-const { Sequelize, DataTypes } = require('sequelize');
-const sequelize = new Sequelize('postgres://user:password@localhost:5432/database_name'); // Replace with your database connection
+import { Sequelize, DataTypes } from 'sequelize';
+import sequelize from '../database.js'; 
 
 const User = sequelize.define('User', {
     username: {
@@ -8,6 +8,11 @@ const User = sequelize.define('User', {
         unique: true,
         immutable: true,
     },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        unique: true,
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -15,10 +20,10 @@ const User = sequelize.define('User', {
     role: {
         type: DataTypes.ENUM('Tourist', 'Seller', 'Advertiser', 'Admin'),
         allowNull: false,
-    },
+    }
 }, {
     timestamps: true,
     tableName: 'users',
 });
 
-module.exports = User;
+export default User;

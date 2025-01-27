@@ -1,22 +1,22 @@
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database'); // Ensure this points to your Sequelize instance
-const Product = require('./Product'); // Import the Product model
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../database.js'; // Ensure this points to your Sequelize instance
+import Product from './productModel.js'; // Import the Product model
+import User from './userModel.js';
 
 class Seller extends Model {}
 
 // Define the Seller model
 Seller.init(
   {
-    id: {
+    userId: {
       type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
-    email: {
-      type: DataTypes.STRING,
+      references: {
+          model: User,
+          key: 'id'
+      },
       allowNull: false,
-      unique: true, // Ensure email is unique
-    },
+      unique: true
+  },
     description: {
       type: DataTypes.TEXT, // Text field for seller description
       allowNull: true,
@@ -32,7 +32,7 @@ Seller.init(
     },
     taxFile: {
       type: DataTypes.STRING,
-      allowNull: false, // Path to the tax file
+      allowNull: true, // Path to the tax file
     },
     imageFile: {
       type: DataTypes.STRING,
@@ -61,4 +61,4 @@ Product.belongsTo(Seller, {
   as: 'seller', // Alias for the reverse relationship
 });
 
-module.exports = Seller;
+export default Seller;

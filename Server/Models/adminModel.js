@@ -4,4 +4,4 @@ const Admin = User.extend('Admin', {
     // Additional Admin-specific fields can be defined here, if any.
 });
 
-module.exports = Admin;
+export default Admin;

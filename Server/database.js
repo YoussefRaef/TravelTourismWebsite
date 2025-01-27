@@ -10,5 +10,14 @@ const sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, pr
   port: process.env.DB_PORT,
 });
 
-// Export the Sequelize instance as the default export
+// Sync models with the database
+sequelize.sync({ force: false }) // Set to `false` in production, `true` to drop tables during development
+  .then(() => {
+    console.log('Database synchronized successfully');
+  })
+  .catch((err) => {
+    console.error('Error syncing database:', err);
+  });
+
+// Export the Sequelize instance for use in other parts of the app
 export default sequelize;

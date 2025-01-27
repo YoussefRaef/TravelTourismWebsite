@@ -1,52 +1,55 @@
-const { DataTypes, Model } = require('sequelize');
-const sequelize = require('../config/database'); // Ensure the correct path to your Sequelize instance
-
+import { Model, DataTypes } from 'sequelize';
+import sequelize from '../database.js';
+import User from './userModel.js'; 
 // Define the Tourist model
 class Tourist extends Model {}
 
-Tourist.init(
-  {
-    email: {
+
+Tourist.init({
+  userId: {
+      type: DataTypes.INTEGER,
+      references: {
+          model: User,
+          key: 'id'
+      },
+      allowNull: false,
+      unique: true
+  },
+  mobileNumber: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
-    },
-    mobileNumber: {
-      type: DataTypes.STRING, // Allows for international formats
-      allowNull: false,
-    },
-    nationality: {
+  },
+  nationality: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    dateOfBirth: {
-      type: DataTypes.DATEONLY, // Only stores the date (not time)
+  },
+  dateOfBirth: {
+      type: DataTypes.DATEONLY,
       allowNull: false,
-    },
-    job: {
+  },
+  job: {
       type: DataTypes.STRING,
       allowNull: false,
-    },
-    wallet: {
-      type: DataTypes.DECIMAL(10, 2), // For monetary values
-      defaultValue: 0.0, // Optional: Initialize wallet with a default value
-    },
-    loyaltyPoints: {
+  },
+  wallet: {
+      type: DataTypes.DECIMAL(10, 2),
+      defaultValue: 0.0,
+  },
+  loyaltyPoints: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-    },
   },
-  {
-    sequelize, // Sequelize instance
-    modelName: 'Tourist', // Model name
-    timestamps: true, // Adds createdAt and updatedAt fields
-  }
-);
+}, {
+  sequelize,
+  modelName: 'Tourist',
+  timestamps: true
+});
 
 // Define Associations (bookmarksActivity and bookmarksItinerary)
 // Activities and Itineraries would be separate models.
 
-const Activity = require('./Activity'); // Ensure the correct path
+import Product from './productModel.js'; // Import the Product model
+import Activity from './activityModel.js'; // Import the Activity model
 
 Tourist.belongsToMany(Activity, {
   through: 'TouristActivityBookmarks', // Join table
@@ -54,6 +57,14 @@ Tourist.belongsToMany(Activity, {
   foreignKey: 'touristId',
 });
 
+Tourist.belongsToMany(Product, {
+  through: 'TouristProductBookmarks', // Join table
+  as: 'bookmarkedProducts',
+  foreignKey: 'touristId',
+});
+Tourist.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+User.hasOne(Tourist, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
 
 // Export the model
-module.exports = Tourist;
+export default Tourist;
