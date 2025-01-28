@@ -245,7 +245,9 @@ const handleLogin = async (e) => {
     }
   } catch (error) {
     console.error('Error during login:', error.response?.data || error.message);
-  alert('Invalid Username or Password')
+    const errorMessage = error.response?.data?.msg;
+    
+    alert(errorMessage || 'An error occurred. Please try again.');
   }
 }
 

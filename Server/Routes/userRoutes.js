@@ -7,16 +7,17 @@ import Seller from '../Models/sellerModel.js';
 import Advertiser from '../Models/advertiserModel.js';
 import Tourist from '../Models/touristModel.js';
 import Sequelize from 'sequelize';
+import dotenv from 'dotenv';
 const router = express.Router();
-
 const maxAge = 3 * 24 * 60 * 60; // Token expiration time (3 days)
 
 // Create JWT token
 const createToken = (_id) => {
-    return jwt.sign({ _id }, 'supersecret', {
+    return jwt.sign({ _id }, process.env.JWT_SECRET, {
         expiresIn: maxAge,
     });
 };
+
 // http://localhost:3000/user/registerUser
 router.post('/registerUser', upload.fields([
     { name: 'idFile', maxCount: 1 },
@@ -78,7 +79,6 @@ router.post('/registerUser', upload.fields([
 
             newSubUser = await Seller.create({
                 userId: newUser.id,
-                role,
                 idFile,
                 certificatesFile,
                 imageFile,
@@ -91,7 +91,6 @@ router.post('/registerUser', upload.fields([
 
             newSubUser = await Advertiser.create({
                 userId: newUser.id,
-                role,
                 idFile,
                 certificatesFile,
                 imageFile,
@@ -120,7 +119,7 @@ router.post('/registerUser', upload.fields([
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
-    try {
+    try {   
         console.log('Received login request for username:', username);
 
         // Check if the user exists in the database
@@ -133,14 +132,31 @@ router.post('/login', async (req, res) => {
         console.log('User found:', user); // Log the entire user object (except password)
 
         // Check if the user is rejected (if status is rejected, they cannot login)
-        if (user.status === 'Rejected') {
-            console.log('User account is rejected');
-            return res.status(400).json({ msg: 'Your account has been rejected. You cannot log in.' });
-        }
-        if (user.status === 'Pending') {
-            console.log('User account is pending approval');
-            return res.status(400).json({ msg: 'Your account is currently under review. Please wait for approval before logging in.' });
-        }
+       // Check if the user is a Seller and their status
+const seller = await Seller.findOne({ where: { userId: user.id } });
+if (seller) { // Only check status if seller exists
+    if (seller.status === 'Rejected') {
+        console.log('User account is rejected');
+        return res.status(400).json({ msg: 'Your account has been rejected. You cannot log in.' });
+    }
+    if (seller.status === 'Pending') {
+        console.log('User account is pending approval');
+        return res.status(400).json({ msg: 'Your account is currently under review. Please wait for approval before logging in.' });
+    }
+}
+
+// Check if the user is an Advertiser and their status
+const advertiser = await Advertiser.findOne({ where: { userId: user.id } });
+if (advertiser) { // Only check status if advertiser exists
+    if (advertiser.status === 'Rejected') {
+        console.log('User account is rejected');
+        return res.status(400).json({ msg: 'Your account has been rejected. You cannot log in.' });
+    }
+    if (advertiser.status === 'Pending') {
+        console.log('User account is pending approval');
+        return res.status(400).json({ msg: 'Your account is currently under review. Please wait for approval before logging in.' });
+    }
+}
 
         // Debugging password comparison
         console.log('Entered Password:', password);
@@ -188,10 +204,9 @@ router.post('/login', async (req, res) => {
     }
 });
 
-
-
-
-
 // http://localhost:3000/user/logout
-
+router.get('/logout', (req, res) => {
+    res.clearCookie('jwt');  // clears the cookie in the browser
+    res.status(200).json({ message: 'Logged out successfully' });
+});
 export default router;
