@@ -1,8 +1,13 @@
 import React from 'react'
-
+import NavBar from './NavBar'
+import {motion} from 'framer-motion';
 function TouristHome() {
   return (
-    <div>TouristHome</div>
+    <>
+    <NavBar />
+    
+    <div>queiuafsg</div>
+    </>
   )
 }
 
