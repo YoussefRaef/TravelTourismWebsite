@@ -1,5 +1,5 @@
 import React,{useState} from 'react'
-import {AiOutlineClose,AiOutlineMenu} from 'react-icons/ai'
+import {AiOutlineClose,AiOutlineMenu,AiOutlineShoppingCart} from 'react-icons/ai'
 import Tourista from '../../assets/tourista.png'
 import {motion} from 'framer-motion';
 import axios from 'axios';
@@ -8,10 +8,22 @@ const [open,setOpen] = useState(false)
 const handleOpen = () => {  
     setOpen(!open)
 }
-const handleLogout = () => {    
-    axios.get('http://localhost:3000/user/logout')
-    window.location.href = '/login'
-}
+const handleLogout = async () => {
+    try {
+        console.log("Attempting to log out...");
+
+        const response = await axios.get('http://localhost:3000/user/logout', { 
+            withCredentials: true // Ensure cookies are sent with the request
+        });
+
+        console.log('Logout response:', response);
+        window.location.replace('/login'); // Redirect to login page
+    } catch (error) {
+        console.error('Logout failed', error);
+        alert("Logout failed: " + error.message); // Show a user-friendly message
+    }
+};
+
   return (
     <div className='bg-blue-900 flex justify-between items-center h-30 w-full mx-auto px-8 text-white overflow-hidden'>
    <img src={Tourista} alt='Tourista' className='w-24 scale-150'/>
@@ -19,7 +31,7 @@ const handleLogout = () => {
    <li className='p-4'><button className='hover:text-gray-400'>Notifications</button></li>
    <li className='p-4'><button className='hover:text-gray-400'>Hotels</button></li>
         <li className='p-4'><button className='hover:text-gray-400'>Flights</button></li>
-        <li className='p-4'><button className='hover:text-gray-400'>Purchases</button></li>
+        <li className='p-4 '><button className='hover:text-gray-400 flex flex-row' ><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
         <li className='p-4'><button className='hover:text-gray-400'>Events</button></li>
         <li className='p-4'><button className='hover:text-gray-400'>Profile</button></li>
         <li className='p-4'><button className='hover:text-gray-400' onClick={handleLogout}>Logout</button></li>
@@ -33,10 +45,10 @@ const handleLogout = () => {
     >
         <img src={Tourista} alt='Tourista' className='w-24 scale-150 mx-auto'/>
         <ul className='uppercase p-3'>
-        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Logout</button></li>
+        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'  onClick={handleLogout}><button>Logout</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Profile</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Events</button></li>
-        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Purchases</button></li>
+        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button className='flex flex-row'><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Flights</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'><button>Hotels</button></li>
         <li className='p-4 hover:text-gray-400'><button>Notifications</button></li>
@@ -44,6 +56,8 @@ const handleLogout = () => {
     </motion.div>
     
     </div>
+    
+    
     </div>
   )
 }

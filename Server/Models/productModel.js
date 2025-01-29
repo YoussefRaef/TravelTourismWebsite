@@ -1,6 +1,7 @@
 import { Model, DataTypes } from 'sequelize';
-import sequelize from '../database.js'; 
-import Seller from './sellerModel.js'; // Import Seller here if not already
+import sequelize from '../database.js';
+import Seller from './sellerModel.js'; // Ensure Seller model is correctly imported
+import Review from './reviewModel.js'; // Import Review model
 
 class Product extends Model {}
 
@@ -19,10 +20,44 @@ Product.init(
       type: DataTypes.FLOAT,
       allowNull: false,
     },
-    sellerId: { // Define the foreign key
+    averageRating: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      validate: {
+        min: 1,
+        max: 5,
+      },
+    },
+    images: {
+      type: DataTypes.ARRAY(DataTypes.STRING), // Stores image URLs as an array
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    archived: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    sales: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    sellerId: {
       type: DataTypes.INTEGER,
       references: {
-        model: 'Sellers', // Must match tableName in Seller model
+        model: Seller,
         key: 'id',
       },
       onDelete: 'CASCADE',
@@ -35,5 +70,9 @@ Product.init(
     timestamps: true,
   }
 );
+
+// Define relationships
+Product.belongsTo(Seller, { foreignKey: 'sellerId' }); // One Seller has many Products
+Product.hasMany(Review, { foreignKey: 'productId', onDelete: 'CASCADE' }); // One Product has many Reviews
 
 export default Product;

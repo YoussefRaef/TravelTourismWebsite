@@ -104,8 +104,13 @@ router.post('/registerUser', upload.fields([
         const token = createToken(newUser.id);
 
         // Set the token as a cookie in the response
-        res.cookie('jwt', token, { httpOnly: true, maxAge: maxAge * 1000 });
-
+        res.cookie('jwt', token, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'None',
+            maxAge: maxAge * 1000 
+        });
+        
         // Send success response
         res.status(201).json({ message: 'User registered successfully!', user: newUser });
     } catch (err) {
@@ -190,11 +195,14 @@ if (advertiser) { // Only check status if advertiser exists
                     throw err;
                 }
                 console.log('JWT Token generated successfully');
-                res.json({
-                    token,
-                    role: user.role,
-                    userId: user._id
+                res.cookie('jwt', token, { 
+                    httpOnly: true, 
+                    secure: process.env.NODE_ENV === 'production', 
+                    sameSite: 'None', 
+                    maxAge: 100 * 60 * 60 * 1000 // 100 hours in milliseconds
                 });
+                res.json({ role: user.role, userId: user._id });
+                
             }
         );
 
@@ -206,7 +214,15 @@ if (advertiser) { // Only check status if advertiser exists
 
 // http://localhost:3000/user/logout
 router.get('/logout', (req, res) => {
-    res.clearCookie('jwt');  // clears the cookie in the browser
+    console.log("Logout route hit"); // For debugging
+
+    res.clearCookie('jwt', { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'None' 
+    });
+
     res.status(200).json({ message: 'Logged out successfully' });
 });
+
 export default router;

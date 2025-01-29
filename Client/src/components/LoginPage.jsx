@@ -224,7 +224,7 @@ const handleLogin = async (e) => {
     const response = await axios.post('http://localhost:3000/user/login', {
       username: formDatatLogin.username,
       password: formDatatLogin.password,
-    });
+    },{withCredentials:true});
 
     // Handle successful response
     if (response.status === 200) {
