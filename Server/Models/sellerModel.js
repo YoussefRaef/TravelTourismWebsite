@@ -1,6 +1,5 @@
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../database.js'; // Ensure this points to your Sequelize instance
-import Product from './productModel.js'; // Import the Product model
 import User from './userModel.js';
 
 class Seller extends Model {}
@@ -11,12 +10,12 @@ Seller.init(
     userId: {
       type: DataTypes.INTEGER,
       references: {
-          model: User,
-          key: 'id'
+        model: User,
+        key: 'id'
       },
       allowNull: false,
       unique: true
-  },
+    },
     description: {
       type: DataTypes.TEXT, // Text field for seller description
       allowNull: true,
@@ -50,15 +49,5 @@ Seller.init(
     timestamps: true, // Automatically adds `createdAt` and `updatedAt`
   }
 );
-
-// Define the relationship with the Product model
-Seller.hasMany(Product, { 
-  foreignKey: 'sellerId', 
-  as: 'products', // Alias for the relationship
-});
-Product.belongsTo(Seller, { 
-  foreignKey: 'sellerId', 
-  as: 'seller', // Alias for the reverse relationship
-});
 
 export default Seller;
