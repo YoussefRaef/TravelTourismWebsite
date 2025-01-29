@@ -1,6 +1,10 @@
 import express from 'express';
 import sequelize from './database.js'; // Import the Sequelize instance
 import userRoutes from './Routes/userRoutes.js'; // Import the user routes
+import adminRoutes from './Routes/adminRoutes.js'; // Import the user routes
+import sellerRoutes from './Routes/sellerRoutes.js'; // Import the user routes
+import advertiserRoutes from './Routes/advertiserRoutes.js'; // Import the user routes
+import touristRoutes from './Routes/touristRoutes.js'; // Import the user routes
 import cors from 'cors'; // Import the CORS middleware
 import setupAssociations from './Models/associations.js';
 
@@ -20,7 +24,10 @@ app.use(cors({
 app.use(express.json()); // For JSON requests
 app.use(express.urlencoded({ extended: true })); // For form data
 app.use('/user', userRoutes)
-
+app.use('/admin', adminRoutes)
+app.use('/seller', sellerRoutes)
+app.use('/advertiser', advertiserRoutes)
+app.use('/tourist', touristRoutes)
 setupAssociations();
 // Test the database connection
 sequelize.authenticate()

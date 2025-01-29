@@ -45,23 +45,7 @@ Tourist.init({
   timestamps: true
 });
 
-// Define Associations (bookmarksActivity and bookmarksItinerary)
-// Activities and Itineraries would be separate models.
 
-import Product from './productModel.js'; // Import the Product model
-import Activity from './activityModel.js'; // Import the Activity model
-
-Tourist.belongsToMany(Activity, {
-  through: 'TouristActivityBookmarks', // Join table
-  as: 'bookmarkedActivities',
-  foreignKey: 'touristId',
-});
-
-Tourist.belongsToMany(Product, {
-  through: 'TouristProductBookmarks', // Join table
-  as: 'bookmarkedProducts',
-  foreignKey: 'touristId',
-});
 Tourist.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
 User.hasOne(Tourist, { foreignKey: 'userId', onDelete: 'CASCADE' });
 

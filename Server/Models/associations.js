@@ -2,8 +2,28 @@ import Product from './productModel.js';
 import Review from './reviewModel.js';
 import User from './userModel.js';
 import Seller from './sellerModel.js';
-
+import BookedActivity from './bookedActivityModel.js';
+import Tourist from './touristModel.js';
+import Activity from './activityModel.js';
 // Define relationships
+
+// Define Tourist - Activity relationships (Many-to-Many)
+Tourist.belongsToMany(Activity, { 
+  through: BookedActivity, 
+  foreignKey: 'touristId', 
+  as: 'activitiesBooked' 
+});
+
+Activity.belongsToMany(Tourist, { 
+  through: BookedActivity, 
+  foreignKey: 'activityId', 
+  as: 'touristBookings' 
+});
+
+// Define Tourist - User relationship (One-to-One)
+Tourist.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
+User.hasOne(Tourist, { foreignKey: 'userId', onDelete: 'CASCADE' });
+
 Product.hasMany(Review, { foreignKey: 'productId', onDelete: 'CASCADE' });
 Review.belongsTo(Product, { foreignKey: 'productId' });
 
