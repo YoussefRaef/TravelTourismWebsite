@@ -8,6 +8,8 @@ import Advertiser from '../Models/advertiserModel.js';
 import Tourist from '../Models/touristModel.js';
 import Sequelize from 'sequelize';
 import dotenv from 'dotenv';
+import path from 'path';
+import authenticateToken from '../middleware/authenticateToken.js'; 
 const router = express.Router();
 const maxAge = 3 * 24 * 60 * 60; // Token expiration time (3 days)
 
@@ -108,6 +110,8 @@ router.post('/registerUser', upload.fields([
             httpOnly: true, 
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'None',
+            domain: 'localhost',
+            path : '/',
             maxAge: maxAge * 1000 
         });
         
@@ -118,7 +122,6 @@ router.post('/registerUser', upload.fields([
         res.status(500).json({ error: 'Internal server error' });
     }
 }));
-
 
 // http://localhost:3000/user/login
 router.post('/login', async (req, res) => {
@@ -194,14 +197,17 @@ if (advertiser) { // Only check status if advertiser exists
                     console.error('JWT Signing Error:', err);
                     throw err;
                 }
+                console.log('JWT Token:', token); // This logs the generated JWT token
                 console.log('JWT Token generated successfully');
                 res.cookie('jwt', token, { 
                     httpOnly: true, 
                     secure: process.env.NODE_ENV === 'production', 
                     sameSite: 'None', 
+                    domain: 'localhost',
+                    path : '/',
                     maxAge: 100 * 60 * 60 * 1000 // 100 hours in milliseconds
                 });
-                res.json({ role: user.role, userId: user._id });
+                res.json({ role: user.role, userId: user.id });
                 
             }
         );
@@ -224,5 +230,111 @@ router.get('/logout', (req, res) => {
 
     res.status(200).json({ message: 'Logged out successfully' });
 });
+
+// http://localhost:3000/user/getUser
+router.get('/getUser/:id', authenticateToken, async (req, res) => {
+    const { id } = req.params; // Get user ID from route parameter
+
+    try {
+        // Find the user by primary key (id)
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        } else {
+            // Look for the sub-user (Tourist, Seller, Advertiser) based on the user ID
+            const userTourist = await Tourist.findOne({ where: { userId: id } });
+            const userSeller = await Seller.findOne({ where: { userId: id } });
+            const userAdvertiser = await Advertiser.findOne({ where: { userId: id } });
+
+            // Return the user and the sub-user information
+            if (userTourist) {
+                res.status(200).json({ user: user, subUser: userTourist });
+            } else if (userSeller) {
+                res.status(200).json({ user: user, subUser: userSeller });
+            } else if (userAdvertiser) {
+                res.status(200).json({ user: user, subUser: userAdvertiser });
+            } else {
+                res.status(404).json({ error: 'No sub-user found' });
+            }
+        }
+    } catch (err) {
+        console.error('Error during getUser:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// http://localhost:3000/user/updateUser/:id
+router.put('/updateUser/:id', upload.fields([
+    { name: 'idFile', maxCount: 1 },
+    { name: 'certificatesFile', maxCount: 1 },
+    { name: 'imageFile', maxCount: 1 }
+]), async (req, res) => {
+    const { id } = req.params;
+    const { username, email, password, role } = req.body;
+
+    try {
+        const user = await User.findByPk(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        // Hash password before updating
+        const salt = await bcrypt.genSalt();
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        // Update User
+        const updatedUser = await user.update({ 
+            username, 
+            email, 
+            password: hashedPassword, 
+            role 
+        });
+
+        let updatedSubUser = null;
+
+        if (role === 'Tourist') {
+            const { mobileNumber, country, job, dateOfBirth } = req.body;
+
+            // Update the Tourist entry
+            await Tourist.update({
+                mobileNumber,
+                country,
+                job,
+                dateOfBirth
+            }, { where: { userId: id } });
+
+            // Fetch the updated Tourist
+            updatedSubUser = await Tourist.findOne({ where: { userId: id } });
+        } else if (role === 'Seller' || role === 'Advertiser') {
+            const idFile = req.files?.idFile ? req.files.idFile[0].path : null;
+            const certificatesFile = req.files?.certificatesFile ? req.files.certificatesFile[0].path : null;
+            const imageFile = req.files?.imageFile ? req.files.imageFile[0].path : null;
+
+            const Model = role === 'Seller' ? Seller : Advertiser;
+
+            // Update the Seller/Advertiser entry
+            await Model.update({
+                idFile,
+                certificatesFile,
+                imageFile
+            }, { where: { userId: id } });
+
+            // Fetch the updated Seller/Advertiser
+            updatedSubUser = await Model.findOne({ where: { userId: id } });
+        }
+
+        return res.json({ 
+            message: "User updated successfully", 
+            user: updatedUser, 
+            subUser: updatedSubUser 
+        });
+
+    } catch (err) {
+        console.error('Error during updateUser:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+
 
 export default router;

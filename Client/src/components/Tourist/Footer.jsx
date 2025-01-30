@@ -2,7 +2,7 @@ import React from 'react'
 
 function Footer() {
   return (
-    <div className='fixed bottom-0 gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 w-full bg-blue-900 text-white items-center justify-center p-4'>
+    <div className=' bottom-0 gap-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 w-full bg-blue-900 text-white items-center justify-center p-4'>
 <div className='flex flex-col w-full text-center '><h1 className='text-xl font-bold'>Company</h1>
 <ul>
 <li>About Us</li>

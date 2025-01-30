@@ -7,9 +7,11 @@ import advertiserRoutes from './Routes/advertiserRoutes.js'; // Import the user 
 import touristRoutes from './Routes/touristRoutes.js'; // Import the user routes
 import cors from 'cors'; // Import the CORS middleware
 import setupAssociations from './Models/associations.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = 3000;
+app.use(cookieParser()); // Middleware to parse cookies
 
 // Allow your frontend's domain (localhost:5173) during development
 app.use(cors({

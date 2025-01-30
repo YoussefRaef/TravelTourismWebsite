@@ -255,7 +255,7 @@ const handleLogin = async (e) => {
     
     <>
   <button className='m-5 px-3 py-1 underline hover:text-gray-400 duration-200'
-  onClick={()=>navigate(-1)}
+  onClick={()=>navigate('/')}
   >Back to HomePage</button>
    <div className='flex flex-col-2  mx-auto mt-24 justify-center lg:scale-125 scale-85 sm:scale-100'>
  
