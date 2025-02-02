@@ -183,7 +183,7 @@ if (advertiser) { // Only check status if advertiser exists
         // If the user is authenticated, create a JWT token
         const payload = {
             user: {
-                id: user._id,
+                id: user.id,
                 role: user.role,
             },
         };
@@ -240,23 +240,21 @@ router.get('/getUser/:id', authenticateToken, async (req, res) => {
         const user = await User.findByPk(id);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
-        } else {
-            // Look for the sub-user (Tourist, Seller, Advertiser) based on the user ID
-            const userTourist = await Tourist.findOne({ where: { userId: id } });
-            const userSeller = await Seller.findOne({ where: { userId: id } });
-            const userAdvertiser = await Advertiser.findOne({ where: { userId: id } });
-
-            // Return the user and the sub-user information
-            if (userTourist) {
-                res.status(200).json({ user: user, subUser: userTourist });
-            } else if (userSeller) {
-                res.status(200).json({ user: user, subUser: userSeller });
-            } else if (userAdvertiser) {
-                res.status(200).json({ user: user, subUser: userAdvertiser });
-            } else {
-                res.status(404).json({ error: 'No sub-user found' });
-            }
         }
+
+        // Look for the sub-user (Tourist, Seller, Advertiser) based on the user ID
+        const subUser = await Promise.any([
+            Tourist.findOne({ where: { userId: id } }),
+            Seller.findOne({ where: { userId: id } }),
+            Advertiser.findOne({ where: { userId: id } })
+        ]).catch(() => null); // If none exist, return null
+
+        if (!subUser) {
+            return res.status(404).json({ error: 'No sub-user found' });
+        }
+
+        // Return user and sub-user details
+        res.status(200).json({ user, subUser });
     } catch (err) {
         console.error('Error during getUser:', err);
         res.status(500).json({ error: 'Internal server error' });
