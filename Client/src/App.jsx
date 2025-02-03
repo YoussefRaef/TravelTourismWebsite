@@ -13,6 +13,7 @@ import Activities from './components/Tourist/Activities';
 import Flights from './components/Tourist/Flights';
 import Notifications from './components/Tourist/Notifications';
 import Profile from './components/Tourist/Profile';
+import Products from './components/Tourist/Products';
 function App() {
   return (
     <main>
@@ -29,6 +30,7 @@ function App() {
       <Route path="/flights" element={<Flights />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/products" element={<Products />} />
       </Routes>
       </Router>
     </main>
