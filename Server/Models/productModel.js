@@ -29,7 +29,7 @@ Product.init(
     },
     images: {
       type: DataTypes.ARRAY(DataTypes.STRING), // Stores image URLs as an array
-      allowNull: true,
+      allowNull: false,
     },
     description: {
       type: DataTypes.TEXT,

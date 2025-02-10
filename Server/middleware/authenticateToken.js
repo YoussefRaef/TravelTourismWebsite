@@ -1,22 +1,30 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+dotenv.config(); // Ensure .env is loaded
+
 
 const authenticateToken = (req, res, next) => {
-    const token = req.cookies.jwt; // Extract JWT token from cookies
- 
-    // If no token is found, return a 403 error
-    if (!token) {
-       return res.status(403).send("Access denied, no token provided");
+  // Extract the token from the cookies (ensure your client sends cookies)
+  const token = req.cookies.jwt;  
+  console.log("Token from cookie:", token);
+
+  if (!token) {
+    return res.status(403).json({ message: "Access denied, no token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded.user || !decoded.user.id) {
+      return res.status(403).json({ message: "Invalid token: User ID missing" });
     }
- 
-    // Verify the token using the JWT secret key
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-       if (err) {
-          return res.status(403).send("Invalid token");
-       }
- 
-       req.user = user; // Attach user info to the request object
-       next(); // Pass to the next middleware or route handler
-    });
- };
- 
+    // Attach only the user payload for convenience
+    req.user = decoded.user;
+    next();
+  } catch (err) {
+    console.error("Token verification error:", err);
+    return res.status(403).json({ message: "Invalid token" });
+  }
+};
+
 export default authenticateToken;

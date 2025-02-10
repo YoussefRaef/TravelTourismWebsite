@@ -39,7 +39,7 @@ Seller.init(
     },
     status: {
       type: DataTypes.ENUM('Pending', 'Accepted', 'Rejected'), // Define possible statuses
-      defaultValue: 'Pending', // Default to 'Pending'
+      defaultValue: 'Accepted', // Default to 'Pending'
     },
   },
   {

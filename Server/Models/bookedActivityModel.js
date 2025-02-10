@@ -44,8 +44,5 @@ BookedActivity.init({
   timestamps: true,
 });
 
-// Define Many-to-Many relationship
-Tourist.belongsToMany(Activity, { through: BookedActivity, foreignKey: 'touristId', as: 'bookedActivities' });
-Activity.belongsToMany(Tourist, { through: BookedActivity, foreignKey: 'activityId', as: 'buyers' });
 
 export default BookedActivity;

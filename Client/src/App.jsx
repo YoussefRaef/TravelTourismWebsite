@@ -14,6 +14,9 @@ import Flights from './components/Tourist/Flights';
 import Notifications from './components/Tourist/Notifications';
 import Profile from './components/Tourist/Profile';
 import Products from './components/Tourist/Products';
+import ProductCreation from './components/Seller/ProductCreation';
+import Sales from './components/Seller/Sales';
+import SellerProfile from './components/Seller/SellerProfile';
 function App() {
   return (
     <main>
@@ -31,6 +34,9 @@ function App() {
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/products" element={<Products />} />
+      <Route path ="/productcreation" element={<ProductCreation />} />
+      <Route path ="/sales" element={<Sales />} />
+      <Route path ="/sellerprofile" element={<SellerProfile />} />
       </Routes>
       </Router>
     </main>
