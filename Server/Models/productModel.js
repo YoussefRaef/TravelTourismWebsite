@@ -21,7 +21,7 @@ Product.init(
     averageRating: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      defaultValue: 0,
+      defaultValue: 1,
       validate: {
         min: 1,
         max: 5,
@@ -51,7 +51,11 @@ Product.init(
     sales: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-    }
+    },
+    category: {
+      type: DataTypes.ENUM('Clothing Items', 'Camping', 'Food Supplies', 'Electronic Devices'),
+      allowNull: false,
+    },
   },
   {
     sequelize,
@@ -60,6 +64,5 @@ Product.init(
     timestamps: true,
   }
 );
-
 
 export default Product;

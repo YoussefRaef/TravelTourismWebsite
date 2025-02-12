@@ -1,6 +1,6 @@
 import {React,useState,useEffect} from 'react'
 import NavBar from './NavBar'
-import Footer from './Footer'
+import Footer from '../Footer'
 function SellerProfile() {
       const [Username, setUsername] = useState('');
       const [Email, setEmail] = useState('');

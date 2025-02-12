@@ -61,10 +61,7 @@ router.get('/filterActivities', async (req, res) => {
     }
 });
 
-
-
-
-//ProductRoutes
+//ProductRoutes----------------------------------------------
 
 //http://localhost:3000/tourist/products
 router.get('/products', async (req, res) => {

@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import NavBar from './NavBar';
 import axios from 'axios';
-import Footer from './Footer';
+import Footer from '../Footer';
 
 function Profile() {
   const [username, setUsername] = useState('');
@@ -15,7 +15,7 @@ function Profile() {
   const [promocodes, setPromocodes] = useState(false);
   const [password , setPassword] = useState('');
   const [newPassword , setNewPassword] = useState('');
-
+  const [loyaltyPoints, setLoyaltyPoints] = useState(0);
   // Fetch user profile on mount using the HttpOnly cookie for authentication.
   useEffect(() => {
     const getUserProfile = async () => {
@@ -35,6 +35,7 @@ function Profile() {
         setOccupation(subUser.job);
         setDateOfBirth(subUser.dateOfBirth);
         setWallet(subUser.wallet || 'N/A');
+        setLoyaltyPoints(subUser.loyaltyPoints || 0);
       } catch (error) {
         console.error('Failed to fetch profile:', error);
         alert('Failed to fetch profile: ' + error.message);
@@ -57,6 +58,7 @@ function Profile() {
           nationality :country,
           job: occupation,        // rename occupation to job
           dateOfBirth,
+          loyaltyPoints,
           role: "Tourist"         // include role if necessary
         },
         {
@@ -75,8 +77,9 @@ function Profile() {
   };
 const [showDate, setShowDate] = useState(false);
   return (
-    <div>
+    <div className='flex flex-col min-h-screen'>
       <NavBar />
+      <main className='flex flex-grow flex-col'>
 
       <h1 className="text-4xl font-bold text-center mt-8">Profile</h1>
       <div className="flex flex-row">
@@ -96,9 +99,14 @@ const [showDate, setShowDate] = useState(false);
       </div>
       <div className="flex flex-col mx-8 justify-between h-screen border-t">
         <ul className="flex flex-col">
-          <li className="py-4 text-2xl font-bold flex flex-row">
+         <section className='flex flex-row justify-between'>
+           <li className="py-4 text-2xl font-bold flex flex-row">
             Wallet: {wallet} $
           </li>
+          <li className="py-4 text-2xl font-bold flex flex-row">
+            Loyalty Points: {loyaltyPoints} 
+          </li>
+          </section>
           <li className="py-4 text-2xl font-bold flex flex-row">
             Username: {username} 
           </li>
@@ -144,6 +152,8 @@ const [showDate, setShowDate] = useState(false);
           </button>
         </ul>
       </div>
+      </main>
+
       <Footer />
     </div>
   );

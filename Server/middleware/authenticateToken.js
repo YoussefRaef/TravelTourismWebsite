@@ -10,11 +10,12 @@ const authenticateToken = (req, res, next) => {
   console.log("Token from cookie:", token);
 
   if (!token) {
-    return res.status(403).json({ message: "Access denied, no token provided" });
+    return res.status(403).json({ message: "Access denied, please login" });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log(" role:", decoded.user.role);
     if (!decoded.user || !decoded.user.id) {
       return res.status(403).json({ message: "Invalid token: User ID missing" });
     }

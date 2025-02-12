@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import NavBar from './NavBar';
-import Footer from './Footer';
+import Footer from '../Footer';
 import { motion } from 'framer-motion';
 import { FaHeart, FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import iphone1 from '../../assets/iphone2g1.jpeg';

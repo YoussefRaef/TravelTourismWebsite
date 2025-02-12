@@ -11,38 +11,54 @@ import BookedActivity from '../Models/bookedActivityModel.js';
 import BookedProduct from '../Models/bookedProductModel.js';
 import { upload, asyncWrapper } from '../middleware/upload.js';
 import authenticateToken from '../middleware/authenticateToken.js'; 
+import multer from 'multer';
 const router = express.Router();
 
 //http://localhost:3000/seller/products
 
-router.post('/products', authenticateToken, upload.fields([{ name: 'images', maxCount: 5 }]), async (req, res) => {
-    try {
-        const sellerId = req.user.id; // ✅ Ensure this is defined
+router.post(
+    '/products',
+    authenticateToken,
+    upload.fields([{ name: 'images', maxCount: 5 }]),
+    async (req, res) => {
+      try {
+        // Debug log: Check what's coming in the body and files
+        console.log('Request body:', req.body);
+        console.log('Uploaded files:', req.files);
+        
+        const sellerId = req.user.id;
+        console.log("Seller ID from token:", sellerId);
+        
+        const seller = await Seller.findOne({ where: { userId: sellerId } });
+        if (!seller) {
+          return res.status(401).json({ message: 'Unauthorized: Seller does not exist' });
+        }
+        console.log("Seller record:", seller);
+        
         if (!sellerId) {
             return res.status(403).json({ message: 'Invalid token: No user ID found' });
         }
-
-        const seller = await Seller.findByPk(sellerId);
-        if (!seller) {
-            return res.status(401).json({ message: 'Unauthorized: Seller does not exist' });
-        }
-
+        
+        // Process the files (if any)
         const images = req.files?.images?.map(file => file.path) || [];
-        const { name, price, quantity } = req.body;
-
-        if (!name || !price || !quantity) {
-            return res.status(400).json({ message: 'Name, price, and quantity are required' });
+        const { name, price, quantity, description, category } = req.body;
+  
+        // Validate required fields
+        if (!name || !price || !quantity || !description || !category) {
+            return res.status(400).json({ message: 'Name, price, quantity, description, and category are required' });
         }
         if (isNaN(price) || isNaN(quantity)) {
             return res.status(400).json({ message: 'Price and quantity must be numbers' });
         }
-
-        const product = await Product.create({ name, price, images, quantity, sellerId });
+  
+        const product = await Product.create({ name, price, images, quantity, description, category, sellerId: seller.id });
         res.json(product);
-    } catch (error) {
+      } catch (error) {
         res.status(500).json({ message: error.message });
+      }
     }
-});
+  );
+  
 
 
 

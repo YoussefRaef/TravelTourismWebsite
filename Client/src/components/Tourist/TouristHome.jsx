@@ -1,6 +1,6 @@
 import {React,useState,useEffect} from 'react'
 import NavBar from './NavBar'
-import Footer from './Footer'
+import Footer from '../Footer'
 import {motion} from 'framer-motion';
 import products1 from '../../assets/products1.jpg'
 import products2 from '../../assets/products2.jpeg'
