@@ -59,7 +59,32 @@ router.post(
     }
   );
   
-
+//http://localhost:3000/seller/products
+router.get(
+    '/products',
+    authenticateToken,
+    async (req, res) => {
+      try {
+        const sellerId = req.user.id;
+        console.log("Seller ID from token:", sellerId);
+        
+        const seller = await Seller.findOne({ where: { userId: sellerId } });
+        if (!seller) {
+          return res.status(401).json({ message: 'Unauthorized: Seller does not exist' });
+        }
+        console.log("Seller record:", seller);
+        
+        if (!sellerId) {
+            return res.status(403).json({ message: 'Invalid token: No user ID found' });
+        }
+        
+        const products = await Product.findAll({ where: { sellerId: seller.id } });
+        res.json(products);
+      } catch (error) {
+        res.status(500).json({ message: error.message });
+      }
+    }
+  );
 
 
 

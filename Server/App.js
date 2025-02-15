@@ -13,6 +13,7 @@ const app = express();
 const port = 3000;
 app.use(cookieParser()); // Middleware to parse cookies
 
+app.use('/uploads', express.static('uploads'));
 // Allow your frontend's domain (localhost:5173) during development
 app.use(cors({
   origin: 'http://localhost:5173',  // Replace with your frontend URL in production

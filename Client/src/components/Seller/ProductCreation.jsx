@@ -13,6 +13,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import DescriptionModal from './DescriptionModal';
 function ProductCreation() {
   const [liked, setLiked] = useState(false);
     const [added, setAdded] = useState(false);
@@ -30,21 +32,22 @@ function ProductCreation() {
    const [previews, setPreviews] = useState([]);
    const [modal, setModal] = useState(false);
    const descriptionRef = useRef(null);
-   useEffect(() => {
+   const [selectedDescription, setSelectedDescription] = useState("");
+   const [products, setProducts] = useState([]);
+  useEffect(() => {
     function handleClickOutside(event) {
       if (descriptionRef.current && !descriptionRef.current.contains(event.target)) {
         setModal(false);
       }
-      if(modal){
-        document.addEventListener("mousedown", handleClickOutside);
-      }
-      else{
-        document.removeEventListener("mousedown", handleClickOutside);
-      }
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
     }
+    if (modal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [modal]);
 
 
@@ -76,7 +79,6 @@ function ProductCreation() {
     ];
 
     const handleCreateProduct = async (e) => {
-      e.preventDefault();
     
       // Validate category selection
       if (!allowedCategories.includes(category)) {
@@ -119,24 +121,27 @@ function ProductCreation() {
         console.error('Error creating product:', error.response?.data || error.message);
       }
     };
-    
-   const handleShowProducts = async (e) => {
-      e.preventDefault();
+
+    useEffect(() => { 
+   const handleShowProducts = async () => {
     
       try {
         const res = await axios.get(
-          'http://localhost:3000/tourist/products',
+          'http://localhost:3000/seller/products',
           {
             withCredentials: true,
           }
         );
     
         console.log(res.data, "Products Fetched Successfully");
+        setProducts(res.data);  // Save the fetched products to state
         // (Optionally) update your UI state here with the returned products
       } catch (error) {
         console.error('Error fetching products:', error.response?.data || error.message);
       }
     }
+    handleShowProducts();
+  }, []);
 
   return (
     <div className='flex flex-col min-h-screen'>
@@ -192,21 +197,22 @@ function ProductCreation() {
 <h1 className='m-2 text-center font-semibold text-2xl'>My Created Products</h1>
 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           {/* Single product card */}
-          <div className='mb-4'>
+          {products.map((product) => (
+            <>
+          <div className='mb-4' key={product.id}>
             <motion.div
-              key={currentImage} // Forces animation when the image changes
               initial={{ x: direction === 1 ? 100 : -100 }}
               animate={{ x: 0 }}
               exit={{ x: direction === 1 ? -100 : 100 }}
               transition={{ duration: 1 }}
               style={{
-                backgroundImage: `url(${pics[currentImage]})`,
+                backgroundImage: `url(${product.images[0] ? `http://localhost:3000/${product.images[0].replace(/\\/g, '/')}` : 'defaultImagePath'})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
               className="border border-blue-900 rounded-lg p-4 flex flex-col min-h-[300px]"
             >
-              <h1 className="bg-gray-500/50 rounded-lg px-1 w-10 text-white">90 $</h1>
+              <h1 className="bg-gray-500/50 rounded-lg px-1 w-10 text-white flex flex-row">{product.price } $ </h1>
               <div className="flex flex-row justify-between items-center min-h-[250px]">
                 <button className="hover:opacity-80" onClick={left}>
                   <FaArrowLeft />
@@ -218,27 +224,43 @@ function ProductCreation() {
             </motion.div>
             
             <h1 className="text-blue-900 text-3xl font-semibold flex justify-center items-center mt-2">
-              iPhone 2G
+              {product.name}
             </h1>
             
             <div className="flex flex-row justify-center text-blue-900 mt-2">
-        <h1>Quantity:{quantity}</h1>
+        <h1>Quantity:{product.quantity}</h1>
               <button 
                 className="ml-4 hover:opacity-80 flex flex-row items-center" 
               >
                 Delete Product
               </button>
-              <button 
-                className="ml-4 hover:opacity-80 flex flex-row items-center" 
-                onClick={() => setModal(!modal)}
-              >
+              <button
+                    className="ml-4 hover:opacity-80 flex flex-row items-center"
+                    onClick={() => {
+                      setSelectedDescription("This is the first iPhone released by Apple in 2007.");
+                      setModal(true);
+                    }}
+                    >
                 View Description
               </button>
+              
             </div>
+            
           </div>
+          <DescriptionModal
+        ref={descriptionRef}
+        show={modal}
+        onClose={() => setModal(false)}
+        description={product.description}
+      />
+                    </>
+          )
+          )  }
           {/* Add more product cards as needed */}
+        
         </div>
 </div>
+
       </main>
       <Footer />
     </div>
