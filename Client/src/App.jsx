@@ -17,6 +17,7 @@ import Products from './components/Tourist/Products';
 import ProductCreation from './components/Seller/ProductCreation';
 import Sales from './components/Seller/Sales';
 import SellerProfile from './components/Seller/SellerProfile';
+import Cart from './components/Tourist/Cart';
 function App() {
   return (
     <main>
@@ -37,6 +38,7 @@ function App() {
       <Route path ="/productcreation" element={<ProductCreation />} />
       <Route path ="/sales" element={<Sales />} />
       <Route path ="/sellerprofile" element={<SellerProfile />} />
+      <Route path ="/cart" element={<Cart />} />
       </Routes>
       </Router>
     </main>

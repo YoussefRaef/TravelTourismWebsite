@@ -53,7 +53,7 @@ useEffect(() => {
    <li className='p-4'><button className='hover:text-gray-400' onClick={()=> navigate('/promocode')}>Promocode</button></li>
    <li className='p-4'><button className='hover:text-gray-400'onClick={()=> navigate('/notifications')}>Notifications</button></li>
         <li className='p-4'><button className='hover:text-gray-400'onClick={()=> navigate('/flights')}>Flights</button></li>
-        <li className='p-4 '><button className='hover:text-gray-400 flex flex-row'onClick={()=> navigate('/promocode')} ><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
+        <li className='p-4 '><button className='hover:text-gray-400 flex flex-row'onClick={()=> navigate('/cart')} ><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
         <li className='p-4'><button className='hover:text-gray-400'onClick={()=> navigate('/activities')}>Events</button></li>
         <li className='p-4'><button className='hover:text-gray-400'onClick={()=> navigate('/profile')}>Profile</button></li>
         <li className='p-4'><button className='hover:text-gray-400'onClick={()=> navigate('/tourist')}>Home</button></li>
@@ -73,7 +73,7 @@ useEffect(() => {
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400' onClick={()=> navigate('/tourist')}><button>Home</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400' onClick={()=> navigate('/profile')}><button>Profile</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/activities')}><button>Events</button></li>
-        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/promocode')}><button className='flex flex-row'><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
+        <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/cart')}><button className='flex flex-row'><AiOutlineShoppingCart className='text-xl'/>Cart</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/flights')}><button>Flights</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/promocode')}><button>Hotels</button></li>
         <li className='p-4 border-b border-b-gray-700 hover:text-gray-400'onClick={()=> navigate('/promocode')}><button>Promocodes</button></li>

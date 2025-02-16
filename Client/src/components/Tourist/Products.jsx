@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect,useRef } from 'react';
+import axios from 'axios';
 import NavBar from './NavBar';
 import Footer from '../Footer';
 import { motion } from 'framer-motion';
@@ -25,6 +26,7 @@ function Products() {
   const [rating, setRating] = useState('All Ratings');
   const [Price, setPrice] = useState(0);
   const [name, setName] = useState('');
+  const [products, setProducts] = useState([]);
   const right = () => {
     setDirection(1); // Moving right
     setCurrentImage((prevIndex) => (prevIndex + 1) % images.length);
@@ -34,6 +36,27 @@ function Products() {
     setDirection(-1); // Moving left
     setCurrentImage((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
+
+  useEffect(() => { 
+    const handleShowProducts = async () => {
+     
+       try {
+         const res = await axios.get(
+           'http://localhost:3000/tourist/products',
+           {
+             withCredentials: true,
+           }
+         );
+     
+         console.log(res.data, "Products Fetched Successfully");
+         setProducts(res.data);  // Save the fetched products to state
+         // (Optionally) update your UI state here with the returned products
+       } catch (error) {
+         console.error('Error fetching products:', error.response?.data || error.message);
+       }
+     }
+     handleShowProducts();
+   }, []);
 
   return (
     // This div ensures the page takes at least full viewport height and uses flex layout.
@@ -104,24 +127,30 @@ function Products() {
   />
         </div>
         {/*header section */}
+
         {/* Remove fixed height (h-screen) here so the grid expands with content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
           {/* Single product card */}
-          <div className='mb-4'>
+          {products.map((product) => (
+            
+          <div className='mb-4' key={product.id}>
             <motion.div
-              key={currentImage} // Forces animation when the image changes
               initial={{ x: direction === 1 ? 100 : -100 }}
               animate={{ x: 0 }}
               exit={{ x: direction === 1 ? -100 : 100 }}
               transition={{ duration: 1 }}
               style={{
-                backgroundImage: `url(${images[currentImage]})`,
+                backgroundImage: `url(${product.images[0] ? `http://localhost:3000/${product.images[0].replace(/\\/g, '/')}` : 'defaultImagePath'})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}
               className="border border-blue-900 rounded-lg p-4 flex flex-col min-h-[300px]"
             >
-              <h1 className="bg-gray-500/50 rounded-lg px-1 w-10 text-white">90 $</h1>
+              <section className='flex flex-row justify-between items-center'>
+
+              <h1 className="bg-gray-500/50 rounded-lg px-1  text-white">{product.price} $ </h1>
+              <h1 className="bg-gray-500/50 rounded-lg px-1  text-white"> Items left ({product.quantity}) </h1>
+              </section>
               <div className="flex flex-row justify-between items-center min-h-[250px]">
                 <button className="hover:opacity-80" onClick={left}>
                   <FaArrowLeft />
@@ -133,7 +162,7 @@ function Products() {
             </motion.div>
             
             <h1 className="text-blue-900 text-3xl font-semibold flex justify-center items-center mt-2">
-              iPhone 2G
+           {product.name}
             </h1>
             
             <div className="flex flex-row justify-center text-blue-900 mt-2">
@@ -167,7 +196,7 @@ function Products() {
                 {liked ? <AiOutlineHeart className="mt-1 ml-1" /> : <FaHeart className="mt-1 text-red-600 ml-1" />}
               </button>
             </div>
-          </div>
+          </div> ))}
           {/* Add more product cards as needed */}
         </div>
       </main>

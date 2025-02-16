@@ -9,6 +9,7 @@ import Activity from '../Models/activityModel.js';
 import Product from '../Models/productModel.js';
 import BookedActivity from '../Models/bookedActivityModel.js';
 import BookedProduct from '../Models/bookedProductModel.js';
+import Cart from '../Models/cartModel.js';
 const router = express.Router();
 
 //ActivityRoutes
@@ -91,7 +92,7 @@ router.get('/products', async (req, res) => {
     });
 
 //http://localhost:3000/tourist/bookProduct
-router.get('/bookProductWallet', async (req, res) => {
+router.post('/bookProductWallet', async (req, res) => {
     const { productId, touristId, quantity, name,price,images } = req.query;
     try {
         const product = await Product.findByPk(productId);
@@ -123,6 +124,8 @@ router.get('/bookProductWallet', async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 });
+
+//http://localhost:3000/tourist/addToCart
 
 
 export default router;
